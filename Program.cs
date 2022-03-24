@@ -23,6 +23,6 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
-app.MapHub<TransformHub>("/transformHub");
+app.MapHub<WorldHub>("/transformHub");
 
 app.Run();
