@@ -1,52 +1,53 @@
-using System.Collections.Concurrent;
+using DiplomaServer.Hubs.World;
 using Microsoft.AspNetCore.SignalR;
 
 namespace DiplomaServer.Hubs;
 
 public interface IWorldHub
 {
-    Task RetreiveAllPlayers(Guid[] allPlayers);
     Task SendTransformUpdate(Guid id, byte[] data);
-    Task OnPlayerConnected(Guid userId);
+    Task ThisPlayerConnect(Guid userId, Guid[] other);
+    Task OtherPlayerConnect(Guid userId);
     Task OnPlayerDisconnected(Guid userId);
 }
 
 public sealed class WorldHub : Hub<IWorldHub>
 {
-    private static readonly ConcurrentDictionary<string, Guid> _players = new();
-    private static readonly ConcurrentDictionary<string, Guid> _creatures = new();
+    private readonly WorldInfo _worldInfo;
+
+    public WorldHub(WorldInfo worldInfo)
+    {
+        _worldInfo = worldInfo;
+    }
 
     public async Task SendTransformUpdate(Guid id, byte[] data)
     {
         await Clients.Others.SendTransformUpdate(id, data);
     }
 
-    public async Task OnPlayerConnected(Guid userId)
+    public async Task ThisPlayerConnect(Guid userId, Guid[] other)
     {
-        _players.TryAdd(Context.ConnectionId, userId);
-        await Clients.Others.OnPlayerConnected(userId);
+        _worldInfo.Players.TryAdd(Context.ConnectionId, userId);
+        other = _worldInfo.Players.Values.Except(new[] {userId}).ToArray();
+        await Clients.Caller.ThisPlayerConnect(userId, other);
+        await Clients.Others.OtherPlayerConnect(userId);
     }
 
     public async Task OnPlayerDisconnected(Guid userId)
     {
         await Clients.Others.OnPlayerDisconnected(userId);
-        _players.TryRemove(Context.ConnectionId, out var removed);
-    }
-
-    public async Task RetreiveAllPlayers()
-    {
-        var allPlayers = _players.Values.ToArray();
-        await Clients.Caller.RetreiveAllPlayers(allPlayers);
+        _worldInfo.Players.TryRemove(Context.ConnectionId, out var removed);
     }
 
     public override async Task OnConnectedAsync()
     {
         Console.WriteLine($"{Context.ConnectionId} has connected.");
+        await Task.CompletedTask;
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         Console.WriteLine($"{Context.ConnectionId} has disconnected.");
-        await OnPlayerDisconnected(_players[Context.ConnectionId]);
+        await OnPlayerDisconnected(_worldInfo.Players[Context.ConnectionId]);
     }
 }

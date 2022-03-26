@@ -1,4 +1,5 @@
 using DiplomaServer.Hubs;
+using DiplomaServer.Hubs.World;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSignalR();
+
+builder.Services.AddSingleton<WorldInfo>();
 
 var app = builder.Build();
 
@@ -21,8 +24,12 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.MapBlazorHub();
-app.MapFallbackToPage("/_Host");
-app.MapHub<WorldHub>("/transformHub");
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapBlazorHub();
+    endpoints.MapHub<WorldHub>("/worldHub");
+    endpoints.MapFallbackToPage("/_Host");
+});
 
 app.Run();
