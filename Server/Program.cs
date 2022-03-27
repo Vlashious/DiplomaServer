@@ -31,6 +31,6 @@ app.UseEndpoints(endpoints =>
     endpoints.MapFallbackToPage("/_Host");
 });
 
-var world = app.Services.GetService<WorldHub>();
+var world = app.Services.GetService<MainWorld>();
 world!.Start();
 app.Run();

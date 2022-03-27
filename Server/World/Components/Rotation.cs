@@ -1,12 +1,11 @@
-﻿namespace DiplomaServer.World;
+﻿namespace DiplomaServer.World.Components;
 
-public struct Position
+public struct Rotation
 {
     public float X;
     public float Y;
     public float Z;
-
-    public Position(float x, float y, float z)
+    public Rotation(float x, float y, float z)
     {
         X = x;
         Y = y;

@@ -1,4 +1,4 @@
-﻿namespace DiplomaServer.World;
+﻿namespace DiplomaServer.World.Components;
 
 public struct Player
 {

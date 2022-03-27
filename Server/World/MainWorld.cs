@@ -1,4 +1,6 @@
-﻿using Leopotam.EcsLite;
+﻿using System.Collections.Concurrent;
+using DiplomaServer.World.Commands;
+using Leopotam.EcsLite;
 
 namespace DiplomaServer.World;
 
@@ -6,6 +8,7 @@ public sealed class MainWorld : IAsyncDisposable
 {
     public readonly EcsWorld World;
     public readonly EcsSystems Systems;
+    public readonly ConcurrentQueue<ICommand> Commands = new();
 
     public MainWorld()
     {
@@ -16,9 +19,23 @@ public sealed class MainWorld : IAsyncDisposable
            .Init();
     }
 
-    public void Update()
+    public void Start()
     {
-        Systems.Run();
+        Task.Run(Update);
+    }
+
+    private async Task Update()
+    {
+        while (true)
+        {
+            await Task.Delay(40);
+            Systems.Run();
+
+            while (Commands.TryDequeue(out var command))
+            {
+                await command.Execute();
+            }
+        }
     }
 
     public async ValueTask DisposeAsync()
