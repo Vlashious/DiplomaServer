@@ -1,15 +1,13 @@
-﻿namespace DiplomaServer.World.Components;
+﻿using System.Numerics;
+
+namespace DiplomaServer.World.Components;
 
 public struct Position
 {
-    public float X;
-    public float Y;
-    public float Z;
+    public  Vector3 Value;
 
-    public Position(float x, float y, float z)
+    public Position(Vector3 vector3)
     {
-        X = x;
-        Y = y;
-        Z = z;
+        Value = vector3;
     }
 }

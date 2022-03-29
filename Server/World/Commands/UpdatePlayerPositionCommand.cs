@@ -16,35 +16,34 @@ public sealed class UpdatePlayerPositionCommand : ICommand
 
     public Task Execute()
     {
-        return Task.Factory.StartNew(() =>
+        using var stream = new MemoryStream(_data);
+        using var reader = new BinaryReader(stream);
+        var id = reader.ReadInt32();
+        var x = reader.ReadSingle();
+        var y = reader.ReadSingle();
+        var z = reader.ReadSingle();
+        var rx = reader.ReadSingle();
+        var ry = reader.ReadSingle();
+        var rz = reader.ReadSingle();
+
+        foreach (int playerEntity in _world.Filter<Player>().Inc<Position>().Inc<Rotation>().End())
         {
-            using var stream = new MemoryStream(_data);
-            using var reader = new BinaryReader(stream);
-            var id = reader.ReadInt32();
-            var x = reader.ReadSingle();
-            var y = reader.ReadSingle();
-            var z = reader.ReadSingle();
-            var rx = reader.ReadSingle();
-            var ry = reader.ReadSingle();
-            var rz = reader.ReadSingle();
+            var player = _world.GetPool<Player>().Get(playerEntity);
 
-            foreach (int playerEntity in _world.Filter<Player>().Inc<Position>().Inc<Rotation>().End())
+            if (player.Id == id)
             {
-                var player = _world.GetPool<Player>().Get(playerEntity);
-
-                if (player.Id == id)
-                {
-                    ref var pos = ref _world.GetPool<Position>().Get(playerEntity);
-                    ref var rot = ref _world.GetPool<Rotation>().Get(playerEntity);
-                    pos.X = x;
-                    pos.Y = y;
-                    pos.Z = z;
-                    rot.X = rx;
-                    rot.Y = ry;
-                    rot.Z = rz;
-                    break;
-                }
+                ref var pos = ref _world.GetPool<Position>().Get(playerEntity);
+                ref var rot = ref _world.GetPool<Rotation>().Get(playerEntity);
+                pos.Value.X = x;
+                pos.Value.Y = y;
+                pos.Value.Z = z;
+                rot.X = rx;
+                rot.Y = ry;
+                rot.Z = rz;
+                break;
             }
-        });
+        }
+
+        return Task.CompletedTask;
     }
 }
