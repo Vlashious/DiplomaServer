@@ -8,7 +8,7 @@ namespace DiplomaServer.World;
 
 public sealed class MainWorld : IAsyncDisposable
 {
-    public const float Delta = 1f / 40;
+    public const float Delta = 1f / 60;
     public readonly EcsWorld World;
     public readonly EcsSystems Systems;
     public readonly ConcurrentQueue<ICommand> Commands = new();

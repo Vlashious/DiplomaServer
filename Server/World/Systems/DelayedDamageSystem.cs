@@ -12,9 +12,8 @@ public sealed class DelayedDamageSystem : IEcsRunSystem
         foreach (int entity in world.Filter<DelayedDamageEvent>().End())
         {
             ref var damageEvent = ref world.GetPool<DelayedDamageEvent>().Get(entity);
-            damageEvent.Delay -= MainWorld.Delta;
 
-            if (damageEvent.Delay <= 0)
+            if (DateTime.Now >= damageEvent.FireTime)
             {
                 var dealDamageEvent = world.NewEntity();
                 world.GetPool<DamageEvent>().Add(dealDamageEvent) = new DamageEvent(damageEvent.Entity, damageEvent.Damage);
