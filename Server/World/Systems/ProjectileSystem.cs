@@ -19,9 +19,9 @@ public sealed class ProjectileSystem : IEcsRunSystem
             {
                 var targetPosition = world.GetPool<Position>().Get(projectile.TargetId);
                 var dir = targetPosition.Value - projectilePos.Value;
-                dir = Vector3.Normalize(dir);
-                projectilePos.Value += dir * projectile.Speed * MainWorld.Delta;
-                var distance = (projectilePos.Value - targetPosition.Value).Length();
+                dir = Vector3.Normalize(dir) * projectile.Speed * MainWorld.Delta;
+                projectilePos.Value += dir;
+                var distance = (projectilePos.Value - targetPosition.Value).LengthSquared();
 
                 if (distance < 1f)
                 {

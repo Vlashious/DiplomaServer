@@ -33,6 +33,15 @@ public sealed class DamageEventSystem : IEcsRunSystem
                 var bytes = ms.ToArray();
 
                 _mainWorld.NeedSendData.Invoke(async hub => { await hub.Clients.All.SendAsync("UpdateHealth", bytes); });
+
+                if (health.Value <= 0)
+                {
+                    world.DelEntity(damageEvent.Entity);
+                }
+            }
+            else
+            {
+                world.DelEntity(entity);
             }
 
             world.DelEntity(entity);

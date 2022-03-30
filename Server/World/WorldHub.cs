@@ -58,6 +58,7 @@ public sealed class WorldHub : Hub
         }
 
         filter = _world.World.Filter<Whale>().Inc<Position>().Inc<Health>().End();
+
         foreach (int entity in filter)
         {
             var whale = _world.World.GetPool<Whale>().Get(entity);
@@ -107,7 +108,6 @@ public sealed class WorldHub : Hub
         var startX = rd.ReadSingle();
         var startY = rd.ReadSingle();
         var startZ = rd.ReadSingle();
-        rd.Dispose();
 
         int damage = 10;
         float speed = 20;
@@ -120,5 +120,20 @@ public sealed class WorldHub : Hub
         wr.Write(speed);
         _world.Commands.Enqueue(new SpawnMageProjectileCommand(_world.World, new Vector3(startX, startY, startZ), targetId, speed, damage));
         await Clients.All.SendAsync("SpawnMageProjectile", writeMs.ToArray());
+    }
+
+    public async Task SpawnMageBomb(byte[] data)
+    {
+        await using var readMs = new MemoryStream(data);
+        using var rd = new BinaryReader(readMs);
+        var targetId = rd.ReadInt32();
+        float duration = 5;
+        _world.Commands.Enqueue(new SpawnMageBombCommand(_world.World, duration, targetId));
+
+        await using var ms = new MemoryStream();
+        await using var wr = new BinaryWriter(ms);
+        wr.Write(targetId);
+        wr.Write(duration);
+        await Clients.All.SendAsync("SpawnMageBomb", ms.ToArray());
     }
 }

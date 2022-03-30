@@ -8,7 +8,7 @@ namespace DiplomaServer.World;
 
 public sealed class MainWorld : IAsyncDisposable
 {
-    public const float Delta = 0.1f;
+    public const float Delta = 1f / 40;
     public readonly EcsWorld World;
     public readonly EcsSystems Systems;
     public readonly ConcurrentQueue<ICommand> Commands = new();
@@ -23,6 +23,7 @@ public sealed class MainWorld : IAsyncDisposable
         Systems
            .Add(new SpawnWhaleSystem())
            .Add(new ProjectileSystem())
+           .Add(new DelayedDamageSystem())
            .Add(new DamageEventSystem(this))
            .Init();
     }
@@ -38,7 +39,7 @@ public sealed class MainWorld : IAsyncDisposable
         {
             try
             {
-                await Task.Delay(TimeSpan.FromMilliseconds(Delta));
+                await Task.Delay(TimeSpan.FromSeconds(Delta));
 
                 if (!IsTicking)
                 {
