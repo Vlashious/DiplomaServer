@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using DiplomaServer.World.Commands;
 using DiplomaServer.World.Systems;
 using Leopotam.EcsLite;
@@ -8,7 +9,8 @@ namespace DiplomaServer.World;
 
 public sealed class MainWorld : IAsyncDisposable
 {
-    public const float Delta = 1f / 60;
+    public static float Delta;
+    public const float TargetDelta = 1f / 60;
     public readonly EcsWorld World;
     public readonly EcsSystems Systems;
     public readonly ConcurrentQueue<ICommand> Commands = new();
@@ -39,7 +41,9 @@ public sealed class MainWorld : IAsyncDisposable
         {
             try
             {
-                await Task.Delay(TimeSpan.FromSeconds(Delta));
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                await Task.Delay(TimeSpan.FromSeconds(TargetDelta));
 
                 if (!IsTicking)
                 {
@@ -52,6 +56,9 @@ public sealed class MainWorld : IAsyncDisposable
                 {
                     await command.Execute();
                 }
+
+                stopwatch.Stop();
+                Delta = (float) stopwatch.Elapsed.TotalSeconds;
             }
             catch (Exception e)
             {

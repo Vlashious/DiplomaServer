@@ -22,6 +22,7 @@ public sealed class WorldHub : Hub
 
     public override async Task OnConnectedAsync()
     {
+        Console.WriteLine("Player connected.");
         _world.IsTicking = false;
         var connectedPlayer = _world.World.NewEntity();
         var position = new Position(new Vector3(0, 0, 0));
