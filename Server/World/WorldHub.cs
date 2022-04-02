@@ -25,8 +25,10 @@ public sealed class WorldHub : Hub
         _world.IsTicking = false;
         var connectedPlayer = _world.World.NewEntity();
         var position = new Position(new Vector3(0, 0, 0));
+        var health = 500;
         _world.World.GetPool<Player>().Add(connectedPlayer) = new Player(connectedPlayer, Context.ConnectionId);
         _world.World.GetPool<Position>().Add(connectedPlayer) = position;
+        _world.World.GetPool<Health>().Add(connectedPlayer) = new Health(health);
         _world.IsTicking = true;
 
         await using var stream = new MemoryStream();
@@ -35,10 +37,11 @@ public sealed class WorldHub : Hub
         writer.Write(position.Value.X);
         writer.Write(position.Value.Y);
         writer.Write(position.Value.Z);
+        writer.Write(health);
         await Clients.Caller.SendAsync("SpawnPlayer", stream.ToArray());
         await Clients.Others.SendAsync("SpawnNetworkPlayer", stream.ToArray());
 
-        var filter = _world.World.Filter<Player>().Inc<Position>().End();
+        var filter = _world.World.Filter<Player>().Inc<Position>().Inc<Health>().End();
 
         foreach (int entity in filter)
         {
@@ -49,11 +52,13 @@ public sealed class WorldHub : Hub
 
             var playerId = _world.World.GetPool<Player>().Get(entity);
             var playerPosition = _world.World.GetPool<Position>().Get(entity);
+            var playerHealth = _world.World.GetPool<Health>().Get(entity);
             stream.SetLength(0);
             writer.Write(playerId.Id);
             writer.Write(playerPosition.Value.X);
             writer.Write(playerPosition.Value.Y);
             writer.Write(playerPosition.Value.Z);
+            writer.Write(playerHealth.Value);
             await Clients.Caller.SendAsync("SpawnNetworkPlayer", stream.ToArray());
         }
 
@@ -63,13 +68,13 @@ public sealed class WorldHub : Hub
         {
             var whale = _world.World.GetPool<Whale>().Get(entity);
             var pos = _world.World.GetPool<Position>().Get(entity);
-            var health = _world.World.GetPool<Health>().Get(entity);
+            var whaleHealth = _world.World.GetPool<Health>().Get(entity);
             stream.SetLength(0);
             writer.Write(whale.Id);
             writer.Write(pos.Value.X);
             writer.Write(pos.Value.Y);
             writer.Write(pos.Value.Z);
-            writer.Write(health.Value);
+            writer.Write(whaleHealth.Value);
             await Clients.Caller.SendAsync("SpawnWhale", stream.ToArray());
         }
     }
