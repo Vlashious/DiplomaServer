@@ -14,4 +14,8 @@
     <ProjectReference Include="..\World\World.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Android" />
+  </ItemGroup>
+
 </Project>

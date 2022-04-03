@@ -14,7 +14,7 @@ public sealed class SpawnWhaleSystem : IEcsInitSystem
             var whale = world.NewEntity();
             world.GetPool<Whale>().Add(whale) = new Whale(whale);
             world.GetPool<Position>().Add(whale) = new Position(new Vector3(i * 4, 1, 4));
-            world.GetPool<Health>().Add(whale) = new Health(200);
+            world.GetPool<Health>().Add(whale) = new Health(300);
         }
     }
 }

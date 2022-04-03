@@ -1,4 +1,5 @@
 using DiplomaServer.World;
+using Microsoft.AspNetCore.StaticFiles.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +20,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions {ServeUnknownFileTypes = true});
 
 app.UseRouting();
 

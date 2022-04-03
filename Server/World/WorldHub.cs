@@ -142,4 +142,14 @@ public sealed class WorldHub : Hub
         wr.Write(duration);
         await Clients.All.SendAsync("SpawnMageBomb", ms.ToArray());
     }
+
+    public async Task SpawnMageCurse(byte[] data)
+    {
+        await using var readMs = new MemoryStream(data);
+        using var rd = new BinaryReader(readMs);
+        var x = rd.ReadSingle();
+        var y = rd.ReadSingle();
+        var z = rd.ReadSingle();
+        _world.Commands.Enqueue(new SpawnMageCurseCommand(_world, new Vector3(x, y, z), 5, 50, 1, 0.2f));
+    }
 }

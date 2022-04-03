@@ -19,7 +19,7 @@ public sealed class SpawnMageBombCommand : ICommand
     public async Task Execute()
     {
         var entity = _world.NewEntity();
-        _world.GetPool<DelayedDamageEvent>().Add(entity) = new DelayedDamageEvent(100, _targetId, DateTime.Now.AddSeconds(_duration));
+        _world.GetPool<DelayedDamageEvent>().Add(entity) = new DelayedDamageEvent(50, _targetId, _duration);
         await Task.CompletedTask;
     }
 }

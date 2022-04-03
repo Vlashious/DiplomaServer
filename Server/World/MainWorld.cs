@@ -25,8 +25,10 @@ public sealed class MainWorld : IAsyncDisposable
         Systems
            .Add(new SpawnWhaleSystem())
            .Add(new ProjectileSystem())
+           .Add(new IntervalDamageSystem())
            .Add(new DelayedDamageSystem())
            .Add(new DamageEventSystem(this))
+           .Add(new HealthSystem())
            .Init();
     }
 

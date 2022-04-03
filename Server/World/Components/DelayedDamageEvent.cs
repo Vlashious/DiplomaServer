@@ -3,13 +3,13 @@
 public struct DelayedDamageEvent
 {
     public int Damage;
-    public DateTime FireTime;
+    public float Duration;
     public int Entity;
 
-    public DelayedDamageEvent(int damage, int entity, DateTime fireTime)
+    public DelayedDamageEvent(int damage, int entity, float duration)
     {
         Damage = damage;
         Entity = entity;
-        FireTime = fireTime;
+        Duration = duration;
     }
 }

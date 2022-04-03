@@ -25,7 +25,7 @@ public sealed class DamageEventSystem : IEcsRunSystem
             if (healthPool.Has(damageEvent.Entity))
             {
                 ref var health = ref healthPool.Get(damageEvent.Entity);
-                health.Value -= damageEvent.Damage;
+                health.Value -= CalculateDamageForEntity(world, damageEvent.Entity, damageEvent.Damage);
                 using var ms = new MemoryStream();
                 using var writer = new BinaryWriter(ms);
                 writer.Write(damageEvent.Entity);
@@ -33,11 +33,6 @@ public sealed class DamageEventSystem : IEcsRunSystem
                 var bytes = ms.ToArray();
 
                 _mainWorld.NeedSendData.Invoke(async hub => { await hub.Clients.All.SendAsync("UpdateHealth", bytes); });
-
-                if (health.Value <= 0)
-                {
-                    world.DelEntity(damageEvent.Entity);
-                }
             }
             else
             {
@@ -46,5 +41,24 @@ public sealed class DamageEventSystem : IEcsRunSystem
 
             world.DelEntity(entity);
         }
+    }
+
+    private int CalculateDamageForEntity(EcsWorld world, int entity, int baseDamage)
+    {
+        float coefficient = 1;
+        var cursePool = world.GetPool<IntervalDamageEvent>();
+
+        foreach (int cursedEntity in world.Filter<IntervalDamageEvent>().End())
+        {
+            var curse = cursePool.Get(cursedEntity);
+
+            if (curse.TargetEntity == entity)
+            {
+                coefficient += curse.DamageIncreasePercent;
+                break;
+            }
+        }
+
+        return (int) Math.Round(baseDamage * coefficient);
     }
 }
